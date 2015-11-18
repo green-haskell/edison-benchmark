@@ -1,0 +1,206 @@
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- The name of the package.
+name:                ecfpcle-AssocCollections
+
+
+-- The package version.  See the Haskell package versioning policy (PVP) 
+-- for standards guiding when and how versions should be incremented.
+-- http://www.haskell.org/haskellwiki/Package_versioning_policy
+-- PVP summary:      +-+------- breaking API changes
+--                   | | +----- non-breaking API additions
+--                   | | | +--- code changes with no API change
+version:             0.1.0.0
+
+
+-- A short (one-line) description of the package.
+-- synopsis:            
+
+
+-- A longer description of the package.
+-- description: 
+
+
+-- The license under which the package is released.
+license:             GPL-3
+
+
+-- The file containing the license text.
+license-file:        LICENSE
+
+
+-- The package author(s).
+author:              Gilberto Melfe
+
+
+-- An email address to which users can send suggestions, bug reports, and 
+-- patches.
+maintainer:          gilbertomelfe@gmail.com
+
+
+-- A copyright notice.
+-- copyright:           
+
+
+-- category:
+
+
+build-type:          Simple
+
+
+-- Extra files to be distributed with the package, such as examples or a 
+-- README.
+-- extra-source-files:
+
+
+-- Constraint on the version of Cabal needed to build this package.
+cabal-version :      >= 1.22
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+executable benchmarkForOneAssocCollectionImpl
+
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010
+
+
+    -- Directories containing source files.
+    hs-source-dirs:     sources/common
+                      , sources/benchmarkForOneAssocCollectionImpl
+
+    -- .hs or .lhs file containing the Main module.
+    main-is:          Main.hs
+
+
+    -- LANGUAGE extensions used by modules in this package.
+    other-extensions:   DeriveGeneric
+                      , TypeSynonymInstances 
+
+
+    ghc-options:      -rtsopts -with-rtsopts=-K64M
+
+  
+    -- Other library packages from which modules are imported.
+    build-depends:      base       >=4.8 && <4.9
+                      , criterion  >=1.1 && <1.2
+                      , deepseq    >=1.4 && <1.5
+                      , EdisonCore >=1.3 && <1.4
+                      , text       >=1.2 && <1.3
+                      , time       >=1.5 && <1.6
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+executable compileForAllAssocCollectionImplementations
+
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010
+
+
+    -- Directories containing source files.
+    hs-source-dirs:     sources/common
+                      , sources/compileForAllAssocCollectionImplementations
+
+
+    -- .hs or .lhs file containing the Main module.
+    main-is:          Main.hs
+
+ 
+    -- Other library packages from which modules are imported.
+    build-depends:      base       >=4.8 && <4.9
+                      , containers >=0.5 && <0.6
+                      , criterion  >=1.1 && <1.2
+                      , directory  >=1.2 && <1.3
+                      , process    >=1.2 && <1.3
+                      , text       >=1.2 && <1.3
+                      , time       >=1.5 && <1.6
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+executable runForAllAssocCollectionImplementations
+
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010
+
+
+    -- Directories containing source files.
+    hs-source-dirs:     sources/common
+                      , sources/runForAllAssocCollectionImplementations
+
+
+    -- .hs or .lhs file containing the Main module.
+    main-is:          Main.hs
+
+  
+    -- Other library packages from which modules are imported.
+    build-depends:      base       >=4.8 && <4.9
+                      , containers >=0.5 && <0.6
+                      , criterion  >=1.1 && <1.2
+                      , directory  >=1.2 && <1.3
+                      , process    >=1.2 && <1.3
+                      , text       >=1.2 && <1.3
+                      , time       >=1.5 && <1.6
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+executable runForAllBenchmarkTypes
+
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010
+
+
+    -- Directories containing source files.
+    hs-source-dirs:     sources/common
+                      , sources/runForAllBenchmarkTypes
+
+
+    -- .hs or .lhs file containing the Main module.
+    main-is:          Main.hs
+
+  
+    -- Other library packages from which modules are imported.
+    build-depends:      base       >=4.8 && <4.9
+                      , containers >=0.5 && <0.6
+                      , criterion  >=1.1 && <1.2
+                      , directory  >=1.2 && <1.3
+                      , process    >=1.2 && <1.3
+                      , text       >=1.2 && <1.3
+                      , time       >=1.5 && <1.6
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+executable postProcessCSV
+
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010
+
+
+    -- Directories containing source files.
+    hs-source-dirs:     sources/common
+                      , sources/postProcessCSV
+
+
+    -- .hs or .lhs file containing the Main module.
+    main-is:          Main.hs
+
+  
+    -- Other library packages from which modules are imported.
+    build-depends:      base       >=4.8 && <4.9
+                      , containers >=0.5 && <0.6
+                      , csv        >=0.1 && <0.2
+                      , parsec     >=3.1 && <3.2
+                      , text       >=1.2 && <1.3
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+

@@ -1,0 +1,116 @@
+module Environments where
+
+
+--import qualified Data.Edison.Assoc.AssocList as A
+
+--import qualified Data.Edison.Assoc.StandardMap as A
+
+import qualified <AssocCollectionImplementation> as A
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+import Defs
+
+import Ops
+
+import Types
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- Benchmarks environment setup functions
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+defaultEnv :: IO ( A.FM Key Datum )
+defaultEnv = return ( addNDistinctFrom A.empty baseNElems 0 )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+addEnvSetup :: IO ( A.FM Key Datum )
+addEnvSetup = do
+    --return ( addNDistinctFrom A.empty addToNElems 0 )
+    defaultEnv -- TODO: Should this be empty?
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+addAllEnvSetup :: IO ( A.FM Key Datum , A.FM Key Datum )
+addAllEnvSetup = do
+    let
+        b = addNDistinctFrom A.empty addAllFromNElems 0
+    a <- defaultEnv
+    return ( a , b )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+clearEnvSetup :: IO ( A.FM Key Datum )
+clearEnvSetup = do
+    return ( addNDistinctFrom A.empty clearNElems 0 )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+containsEnvSetup :: IO ( A.FM Key Datum )
+containsEnvSetup = do
+    defaultEnv
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+containsAllEnvSetup :: IO ( A.FM Key Datum , A.FM Key Datum )
+containsAllEnvSetup = do
+    let
+        a = addNDistinctFrom A.empty containsAllSearchInNElems 0
+        b = addNDistinctFrom A.empty containsAllSearchForNElems 0
+    return ( a , b )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+iteratorEnvSetup :: IO ( A.FM Key Datum )
+iteratorEnvSetup = defaultEnv
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+removeEnvSetup :: IO ( A.FM Key Datum )
+removeEnvSetup = return ( addNDistinctFrom A.empty removeFromNElems 0 )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+removeAllEnvSetup :: IO ( A.FM Key Datum , A.FM Key Datum )
+removeAllEnvSetup = do
+    let
+        a = addNDistinctFrom A.empty removeAllFromNElems 0
+        b = addNDistinctFrom A.empty removeAllNElems 0
+    return ( a , b )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+retainAllEnvSetup :: IO ( A.FM Key Datum , A.FM Key Datum )
+retainAllEnvSetup = do
+    let
+        a = addNDistinctFrom A.empty retainAllFromNElems 0
+        b = addNDistinctFrom A.empty retainAllToNElems 0
+    return ( a , b )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+toListEnvSetup :: IO ( A.FM Key Datum )
+toListEnvSetup = return ( addNDistinctFrom A.empty toListFromNElems 0 )
+
+
+    -- ---------- ---------- ---------- ---------- ---------- ----------
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+

@@ -1,0 +1,280 @@
+-- {-# LANGUAGE DeriveGeneric #-}
+-- {-# LANGUAGE TypeSynonymInstances #-} -- for TypeSynonyms
+
+
+module Ops where
+
+
+import Control.DeepSeq
+
+--import qualified Data.Edison.Assoc.AssocList as A
+
+--import qualified Data.Edison.Assoc.StandardMap as A
+
+import qualified <AssocCollectionImplementation> as A
+
+{-
+import GHC.Generics (
+    Generic
+    )
+-}
+
+import Types
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+--instance NFData a => NFData ( A.FM k a )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- For testing
+
+a_ten = addNDistinctFrom A.empty 10 0
+a_ten_1 = addNDistinctFrom A.empty 10 11
+
+a_one_thousand = addNDistinctFrom A.empty 1000 0
+a_ten_thousand = addNDistinctFrom A.empty 10000 0
+
+a_fifty_thousand = addNDistinctFrom A.empty 50000 0
+
+a_one_hundred_thousand = addNDistinctFrom A.empty 100000 0
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add n, distinct, consecutive, elements, from m, to an assoc. coll..
+
+-}
+
+addNDistinctFrom :: A.FM Key Datum -> Int -> Datum -> A.FM Key Datum
+addNDistinctFrom a 0 _ = a
+addNDistinctFrom a n m = addNDistinctFrom ( A.insert ( m + n - 1 ) ( m + n - 1 ) a ) ( n - 1 ) m
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add all elements contained in assoc coll b, to the assoc. coll. a.
+
+-}
+
+addAll :: A.FM Key Datum -> A.FM Key Datum -> A.FM Key Datum
+addAll = A.union
+
+
+{-
+
+    Add all elements contained in assoc. coll. b, to assoc. coll. a.
+    Repeat n times.
+
+-}
+
+addAllNTimes :: A.FM Key Datum -> A.FM Key Datum -> Int -> A.FM Key Datum
+addAllNTimes a _ 0 = a
+addAllNTimes a b n = deepseq ( addAll a b ) ( addAllNTimes a b ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Clear an assoc. coll..
+
+-}
+
+clear :: A.FM Key Datum -> A.FM Key Datum
+clear a = removeAll a a
+
+
+{-
+alt_clear :: A.FM Key Datum -> A.FM Key Datum
+alt_clear a = if ( A.null a ) then a else alt_clear ( remove a )
+-}
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Check if an assoc. coll. a contains an element e.
+
+-}
+
+{-
+contains :: A.FM Key Datum -> Datum -> Bool
+contains a e = not . A.null . A.filter ( (==) e ) $ a
+-}
+
+{-
+
+    Careful: The Datum type synonym, is the same as the Key (which A.member accepts), it's being used interchangeably; if this changes there will be problems!
+
+-}
+
+contains :: A.FM Key Datum -> Datum -> Bool
+contains = flip A.member
+
+
+{-
+
+    Check if a associative collection a contains an element e.
+    Repeat n times.
+
+    Careful: The Datum type synonym, is the same as the Key, it's being used interchangeably
+
+-}
+
+containsNTimes :: A.FM Key Datum -> Datum -> Int -> Bool
+containsNTimes _ _ 0 = False
+containsNTimes a e n = ( (||) ( containsNTimes a e ( n - 1 ) ) ) $!! ( contains a e )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Check if a associative collection a contains all elements in a associative collection b.
+
+-}
+
+containsAll :: A.FM Key Datum -> A.FM Key Datum -> Bool
+--containsAll a b = A.foldr (&&) True . A.map ( contains a ) $ b
+containsAll = flip A.submap
+    -- Doesn't need a ' version because it doesn't build an Assoc (just a Boolean)!?
+
+
+{-
+
+    Check if a associative collection a contains all elements in a associative collection b.
+    Repeat n times.
+
+-}
+
+containsAllNTimes :: A.FM Key Datum -> A.FM Key Datum -> Int -> Bool
+containsAllNTimes _ _ 0 = False
+containsAllNTimes a b n = ( (||) ( containsAllNTimes a b ( n - 1 ) ) ) $!! ( containsAll a b )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Iterate through a associative collection.
+
+    Note: it only "maps" over the elements, not the keys
+
+-}
+
+iterator :: A.FM Key Datum -> A.FM Key Datum
+iterator = A.map id
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove  element of a Assoc. Collection.
+
+-}
+
+{-
+remove :: A.FM Key Datum -> A.FM Key Datum
+remove a = if ( A.null a ) then a else ( A.deleteMax a )
+-}
+
+remove :: A.FM Key Datum -> A.FM Key Datum
+remove a = if ( A.null a ) then a else ( A.deleteMin a )
+
+
+{-
+
+    Removes  element of an assoc. coll., n times.
+
+-}
+
+removeNTimes :: A.FM Key Datum -> Int -> A.FM Key Datum
+removeNTimes a 0 = a
+removeNTimes a n = deepseq ( remove a ) ( removeNTimes a ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove all elements, contained in b, from a.
+
+-}
+
+removeAll :: A.FM Key Datum -> A.FM Key Datum -> A.FM Key Datum
+removeAll = A.difference
+
+
+{-
+
+    Remove all elements, contained in b, from a.
+    Repeat n times.
+
+-}
+
+removeAllNTimes :: A.FM Key Datum -> A.FM Key Datum -> Int -> A.FM Key Datum
+removeAllNTimes a _ 0 = a
+removeAllNTimes a b n =  deepseq ( removeAll a b ) ( removeAllNTimes a b ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Retain all elements contained in b, in a.
+
+-}
+
+retainAll :: A.FM Key Datum -> A.FM Key Datum -> A.FM Key Datum
+retainAll = A.intersectionWith const
+
+
+{-
+
+    Retain all elements contained in b, in a.
+    Repeat n times.
+
+-}
+
+retainAllNTimes :: A.FM Key Datum -> A.FM Key Datum -> Int -> A.FM Key Datum
+retainAllNTimes a _ 0 = a
+retainAllNTimes a b n =  deepseq ( retainAll a b ) ( retainAllNTimes a b ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    toList.
+
+-}
+
+toList :: A.FM Key Datum -> [ ( Key , Datum ) ]
+-- Não posso usar Upd, porque tem de  ser igual para todas as Assocs
+toList = A.foldrWithKey ( \ k a b -> ( k , a ) : b ) []
+
+
+{-
+
+    toList.
+    Repeat n times.
+
+-}
+
+toListNTimes :: A.FM Key Datum -> Int -> [ ( Key , Datum ) ]
+toListNTimes _ 0 = []
+toListNTimes a n = deepseq ( toList a ) ( toListNTimes a ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+
