@@ -1,0 +1,307 @@
+-- {-# LANGUAGE DeriveGeneric #-}
+
+
+module Ops where
+
+
+import Control.DeepSeq
+
+--import qualified Data.Edison.Seq.BankersQueue as S
+
+--import qualified Data.Edison.Seq.BinaryRandList as S
+
+--import qualified Data.Edison.Seq.BraunSeq as S
+
+--import qualified Data.Edison.Seq.FingerSeq as S
+
+--import qualified Data.Edison.Seq.JoinList as S
+
+--import qualified Data.Edison.Seq.ListSeq as S
+
+--import qualified Data.Edison.Seq.MyersStack as S
+
+--import qualified Data.Edison.Seq.RandList as S
+
+--import qualified Data.Edison.Seq.SimpleQueue as S
+
+import qualified <SequenceImplementation> as S
+
+{-
+import GHC.Generics (
+    Generic
+    )
+-}
+
+-- Conflicts with the one I put in {BankersQueue,RandList}
+--instance NFData a => NFData ( S.Seq a )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- For Testing
+
+s_three = addNDistinctFrom S.empty 3 0
+
+s_ten = addNDistinctFrom S.empty 10 0
+s_ten_1 = addNDistinctFrom S.empty 10 10
+
+s_five_hundred = addNDistinctFrom S.empty 500 0
+s_one_thousand = addNDistinctFrom S.empty 1000 0
+
+s_one_thousand_plus_9999999 = S.rcons 9999999 (addNDistinctFrom S.empty 1000 0)
+
+s_ten_thousand = addNDistinctFrom S.empty 10000 0
+
+s_fifty_thousand = addNDistinctFrom S.empty 50000 0
+s_sixty_thousand = addNDistinctFrom S.empty 60000 0
+s_seventy_five_thousand = addNDistinctFrom S.empty 75000 0
+
+s_one_hundred_thousand = addNDistinctFrom S.empty 100000 0
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add n, distinct, consecutive, elements, from m, to the Sequence seq.
+
+-}
+
+addNDistinctFrom :: S.Seq Int -> Int -> Int -> S.Seq Int
+--addNDistinctFrom seq 0 _ = S.my_f seq
+addNDistinctFrom seq 0 _ = seq
+addNDistinctFrom seq n m =
+    let
+        elemToAdd =  m + n - 1
+        nextNumber = n - 1
+        cons = if even n then S.rcons else S.lcons
+        --cons = S.lcons -- TODO:
+    in
+        addNDistinctFrom ( elemToAdd `cons` seq ) nextNumber m
+
+
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add all elements contained in one sequence, to another sequence.
+
+-}
+
+addAll :: S.Seq Int -> S.Seq Int -> S.Seq Int
+addAll = S.append
+
+
+{-
+
+    Add all elements contained in sequence t, to the sequence s.
+    Repeat n times.
+
+-}
+
+addAllNTimes :: S.Seq Int -> S.Seq Int -> Int -> S.Seq Int
+addAllNTimes s _ 0 = s
+addAllNTimes s t n = deepseq ( addAll s t ) ( addAllNTimes s t ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Clear a sequence.
+
+-}
+
+{-
+
+alt_clear :: S.Seq Int -> S.Seq Int
+alt_clear s = removeAll s s
+
+
+-}
+
+
+clear :: S.Seq Int -> S.Seq Int
+clear s = if ( S.null s ) then s else clear ( remove s )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Check if a sequence s contains an element e.
+
+-}
+
+contains :: S.Seq Int -> Int -> Bool
+contains s e = not . S.null . S.filter ( (==) e ) $ s
+-- Nota: as per P JPF não deve ser strict; Deve sim procurar um elemento que não esteja na seq!
+
+
+{-
+
+    Check if a sequence s contains an element e.
+    Repeat n times.
+
+-}
+
+containsNTimes :: S.Seq Int -> Int -> Int -> Bool
+containsNTimes _ _ 0 = False
+containsNTimes s e n = ( (||) ( containsNTimes s e ( n - 1 ) ) ) $!! ( contains s e )
+
+-- This is "strict", because of it's dependency on the first arg!
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Checks if a sequence s contains all elements in a sequence t.
+
+-}
+
+containsAll :: S.Seq Int -> S.Seq Int -> Bool
+containsAll s t = S.foldr (&&) True . S.map ( s `contains` ) $ t
+-- Nota: as per P JPF não deve ser strict; deve sim procurar um elemento que não esteja na seq!
+
+
+{-
+
+    Checks if a sequence s contains all elements in a sequence t. Repeats n times.
+
+-}
+
+containsAllNTimes :: S.Seq Int -> S.Seq Int -> Int -> Bool
+containsAllNTimes _ _ 0 = False
+containsAllNTimes s t n = ( (||) ( containsAllNTimes s t ( n - 1 ) ) ) $!! ( s `containsAll` t )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Iterate through a sequence.
+
+-}
+
+iterator :: S.Seq Int -> S.Seq Int
+iterator = S.map ( id )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove the first element of a sequence.
+
+-}
+
+remove :: S.Seq Int -> S.Seq Int
+remove s = if ( S.null s ) then s else ( S.ltail s )
+
+
+{-
+
+    Removes the first element of a sequence, n times.
+
+-}
+
+removeNTimes :: S.Seq Int -> Int -> S.Seq Int
+removeNTimes s 0 = s
+removeNTimes s n = deepseq ( remove s ) ( removeNTimes s ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove all elements, contained in t, from s.
+
+-}
+
+removeAll :: S.Seq Int -> S.Seq Int -> S.Seq Int
+
+{-
+removeAll s t = S.foldr f S.empty s
+    where
+        f e is
+            | contains t e = is
+            | otherwise = S.lcons e is
+-}
+
+removeAll s t = S.filter ( not . ( t `contains` ) ) s
+
+
+{-
+
+    Remove all elements, contained in t, from s.
+    Repeat n times.
+
+-}
+
+removeAllNTimes :: S.Seq Int -> S.Seq Int -> Int -> S.Seq Int
+removeAllNTimes s _ 0 = s
+removeAllNTimes s t n =  deepseq ( removeAll s t ) ( removeAllNTimes s t ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Retain all elements contained in t, in s.
+
+-}
+
+retainAll :: S.Seq Int -> S.Seq Int -> S.Seq Int
+
+{-
+retainAll s t = S.foldr f S.empty s
+    where
+        f e is
+            | contains t e = S.lcons e is
+            | otherwise = is 
+-}
+
+retainAll s t = S.filter ( t `contains`) s
+
+
+{-
+
+    Retain all elements contained in t, in s.
+    Repeat n times.
+
+-}
+
+retainAllNTimes :: S.Seq Int -> S.Seq Int -> Int -> S.Seq Int
+retainAllNTimes s _ 0 = s
+retainAllNTimes s t n =  deepseq ( retainAll s t ) ( retainAllNTimes s t ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    toList.
+
+-}
+
+toList :: S.Seq Int -> [ Int ]
+toList = S.toList
+
+
+{-
+
+    toList.
+    Repeat n times.
+
+-}
+
+toListNTimes :: S.Seq Int -> Int -> [ Int ]
+toListNTimes _ 0 = []
+toListNTimes s n = deepseq ( toList s ) ( toListNTimes s ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+

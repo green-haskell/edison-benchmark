@@ -1,0 +1,103 @@
+module Environments where
+
+
+--import qualified Data.Edison.Seq.BankersQueue as S
+
+--import qualified Data.Edison.Seq.BinaryRandList as S
+
+--import qualified Data.Edison.Seq.BraunSeq as S
+
+--import qualified Data.Edison.Seq.FingerSeq as S
+
+--import qualified Data.Edison.Seq.JoinList as S
+
+--import qualified Data.Edison.Seq.ListSeq as S
+
+--import qualified Data.Edison.Seq.MyersStack as S
+
+--import qualified Data.Edison.Seq.RandList as S
+
+--import qualified Data.Edison.Seq.SimpleQueue as S
+
+import qualified <SequenceImplementation> as S
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+import Defs
+
+import Ops
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- Benchmarks environment setup functions
+
+defaultEnv :: IO ( S.Seq Int )
+defaultEnv = return ( addNDistinctFrom S.empty baseNElems 0 )
+
+
+addEnvSetup :: IO ( S.Seq Int )
+addEnvSetup = do
+    defaultEnv
+
+
+addAllEnvSetup :: IO ( S.Seq Int , S.Seq Int )
+addAllEnvSetup = do
+    let
+        t = addNDistinctFrom S.empty addAllFromNElems 0
+    s <- defaultEnv
+    return ( s , t )
+
+
+-- clear
+clearEnvSetup :: IO ( S.Seq Int )
+clearEnvSetup = do
+    return ( addNDistinctFrom S.empty clearNElems 0 )
+
+
+containsEnvSetup :: IO ( S.Seq Int )
+containsEnvSetup = do
+    defaultEnv
+
+
+containsAllEnvSetup :: IO ( S.Seq Int , S.Seq Int )
+containsAllEnvSetup = do
+    let
+        s = addNDistinctFrom S.empty containsAllSearchInNElems 0
+        t = addNDistinctFrom S.empty containsAllSearchForNElems 0
+    return ( s , t )
+
+
+-- iterator
+iteratorEnvSetup :: IO ( S.Seq Int )
+iteratorEnvSetup = defaultEnv
+
+
+removeEnvSetup :: IO ( S.Seq Int )
+removeEnvSetup = return ( addNDistinctFrom S.empty removeFromNElems 0 )
+
+
+removeAllEnvSetup :: IO ( S.Seq Int , S.Seq Int )
+removeAllEnvSetup = do
+    let
+        s = addNDistinctFrom S.empty removeAllFromNElems 0
+        t = addNDistinctFrom S.empty removeAllNElems 0
+    return ( s , t )
+
+
+retainAllEnvSetup :: IO ( S.Seq Int , S.Seq Int )
+retainAllEnvSetup = do
+    let
+        s = addNDistinctFrom S.empty retainAllFromNElems 0
+        t = addNDistinctFrom S.empty retainAllToNElems 0
+    return ( s , t )
+
+
+toListEnvSetup :: IO ( S.Seq Int )
+toListEnvSetup = return ( addNDistinctFrom S.empty toListFromNElems 0 )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+
