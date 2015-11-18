@@ -1,0 +1,309 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TypeSynonymInstances #-}
+
+
+module Ops where
+
+
+import Control.DeepSeq
+
+
+--import qualified Data.Edison.Coll.UnbalancedSet as S
+
+--import qualified Data.Edison.Coll.StandardSet as S
+
+import qualified Data.Edison.Coll.UnbalancedSet as S
+
+
+{-
+import GHC.Generics (
+    Generic
+    )
+-}
+--import Debug.Trace
+
+
+-- Conflicts with the instance in Data.Set
+--instance NFData a => NFData ( S.Set a )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- For testing!
+
+s_ten = addNDistinctFrom S.empty 10 0
+s_ten_1 = addNDistinctFrom S.empty 10 10
+
+s_one_thousand = addNDistinctFrom S.empty 1000 0
+
+s_ten_thousand = addNDistinctFrom S.empty 10000 0
+
+--s_eightteen_thousand_seven_hundred_and_fifty = addNDistinctFrom S.empty 18750 0
+
+s_twenty_thousand_three_hundred_and_twelve = addNDistinctFrom S.empty 20312 0
+
+s_twenty_one_thousand_eight_hundred_and_seventy_five = addNDistinctFrom S.empty 21875 0
+
+s_twenty_five_thousand = addNDistinctFrom S.empty 25000 0
+
+--s_twenty_seven_thousand_five_hundred = addNDistinctFrom S.empty 27500 0
+s_twenty_eight_thousand_seven_hundred_and_fifty = addNDistinctFrom S.empty 28750 0
+
+s_thirty_thousand = addNDistinctFrom S.empty 30000 0
+
+s_fifty_thousand = addNDistinctFrom S.empty 50000 0
+
+s_one_hundred_thousand = addNDistinctFrom S.empty 100000 0
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add n, distinct, consecutive, elements, from m, to the Set s.
+
+-}
+
+addNDistinctFrom :: S.Set Int -> Int -> Int -> S.Set Int
+addNDistinctFrom s 0 _ = s
+addNDistinctFrom s n m = addNDistinctFrom ( S.insert ( m + n - 1 ) s ) ( n - 1 ) m
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add all elements contained in Set t, to the Set s.
+
+-}
+
+addAll :: S.Set Int -> S.Set Int -> S.Set Int
+addAll s t = S.union s t
+-- or
+--addAll s t = S.foldl ( flip S.insert ) s t
+
+
+{-
+
+    Add all elements contained in Set t, to the Set s.
+    Repeat n times.
+
+-}
+
+
+addAllNTimes :: S.Set Int -> S.Set Int -> Int -> S.Set Int
+addAllNTimes s _ 0 = s
+addAllNTimes s t n = deepseq ( addAll s t ) ( addAllNTimes s t ( n - 1 ) )
+
+{-
+--main = putStrLn.show $ deepseq (addAllNTimes s_twenty_eight_thousand_seven_hundred_and_fifty s_one_thousand 1) 2
+-- main = putStrLn.show $ deepseq (addAllNTimes s_twenty_eight_thousand_seven_hundred_and_fifty s_one_thousand 3) 2
+
+addAllNTimes s t 1 = trace "there" $ deepseq ((\y -> (\x -> S.union x) y) s t) (addAll s t)
+addAllNTimes s t n = let x = addAllNTimes s t (n-1)
+		     in trace "here" $ deepseq ((\y -> (\x -> S.union x) y) t s) x 
+-}
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Clear the Set s.
+
+-}
+
+{-
+alt_clear :: S.Set Int -> S.Set Int
+alt_clear s = if S.null s then s else alt_clear ( S.deleteMin s )
+-}
+
+clear :: S.Set Int -> S.Set Int
+clear s = removeAll s s
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Check if a Set s contains an element e.
+
+-}
+
+contains :: S.Set Int -> Int -> Bool
+--contains s e = not . S.null . S.filter ( (==) e ) $ s
+contains = flip S.member
+-- Note: no ' version!
+
+
+{-
+
+    Check if a Set s contains an element e.
+    Repeat n times.
+
+-}
+
+containsNTimes :: S.Set Int -> Int -> Int -> Bool
+containsNTimes _ _ 0 = False
+containsNTimes s e n = ( (||) ( containsNTimes s e ( n - 1 ) ) ) $!! ( contains s e )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Checks if a Set s contains all elements in a Set t.
+
+-}
+
+containsAll :: S.Set Int -> S.Set Int -> Bool
+containsAll s t = S.subset t s
+-- Note: no ' version!
+{-
+containsAll s t
+    | S.null s = S.null t
+    | S.null t = True
+    | otherwise =
+        case S.minView t of
+            Just ( m , rot ) -> if ( contains s m ) then ( containsAll s rot ) else False
+            Nothing -> True
+-}
+
+
+{-
+
+    Checks if a Set s contains all elements in a Set t.
+    Repeats n times.
+
+-}
+
+containsAllNTimes :: S.Set Int -> S.Set Int -> Int -> Bool
+containsAllNTimes _ _ 0 = False
+containsAllNTimes s t n = ( (||) ( containsAllNTimes s t ( n - 1 ) ) ) $!! ( containsAll s t )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Iterate through a Set s.
+
+-}
+
+iterator :: S.Set Int -> [ Int ]
+iterator s = S.foldr (:) [] s
+
+-- TODO: use unsafeMapMonotonic ??
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove an element (the minimum) from a Set s.
+
+-}
+
+remove :: S.Set Int -> S.Set Int
+remove s = S.deleteMin s
+
+
+{-
+
+    Remove an element (the minimum) from a Set s.
+    Repeat n times. 
+
+-}
+
+removeNTimes :: S.Set Int -> Int -> S.Set Int
+removeNTimes s 0 = s
+removeNTimes s n = deepseq ( remove s ) ( removeNTimes s ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove all elements, in a Set t, from a Set s.
+
+-}
+
+removeAll :: S.Set Int -> S.Set Int -> S.Set Int
+removeAll s t = S.difference s t
+{-
+removeAll s t =
+    case S.minView t of
+        Just ( m , rot ) -> removeAll ( S.delete m s ) rot
+        Nothing -> s
+-}
+
+
+{-
+
+    Remove all elements, in a Set t, from a Set s.
+    Repeat n times.
+
+-}
+
+removeAllNTimes :: S.Set Int -> S.Set Int -> Int -> S.Set Int
+removeAllNTimes s _ 0 = s
+removeAllNTimes s t n = deepseq ( removeAll s t ) ( removeAllNTimes s t ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Retain all elements contained in a Set t, in a Set s.
+
+-}
+
+retainAll :: S.Set Int -> S.Set Int -> S.Set Int
+retainAll s t = S.intersection s t
+{-
+retainAll s t =
+    case S.minView s of
+        Just ( m , ros ) -> if ( contains t m ) then S.insert m ( retainAll ros t ) else retainAll ros t
+        Nothing -> s
+-}
+
+
+{-
+
+    Retain all elements contained in a Set t, in a Set s.
+    Repeat n times.
+
+-}
+
+retainAllNTimes :: S.Set Int -> S.Set Int -> Int -> S.Set Int
+retainAllNTimes s _ 0 = s
+retainAllNTimes s t n = deepseq ( retainAll s t ) ( retainAllNTimes s t ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    toList
+
+-}
+
+toList :: S.Set Int -> [ Int ]
+toList = S.foldr (:) []
+
+
+{-
+
+    toList.
+    Repeat n times.
+
+-}
+
+toListNTimes :: S.Set Int -> Int -> [ Int ]
+toListNTimes _ 0 = []
+toListNTimes s n = deepseq ( toList s ) ( toListNTimes s ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+
