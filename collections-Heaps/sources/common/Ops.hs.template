@@ -1,0 +1,303 @@
+-- {-# LANGUAGE DeriveGeneric #-}
+
+
+module Ops where
+
+
+import Control.DeepSeq
+
+--import qualified Data.Edison.Coll.LazyPairingHeap as H
+
+--import qualified Data.Edison.Coll.LeftistHeap as H
+
+--import qualified Data.Edison.Coll.SkewHeap as H
+
+--import qualified Data.Edison.Coll.SplayHeap as H
+
+import qualified <HeapImplementation> as H
+
+
+{-
+import GHC.Generics (
+    Generic
+    )
+-}
+
+--instance NFData a => NFData ( H.Heap a )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- For testing!
+
+h_ten = addNDistinctFrom H.empty 10 0
+h_ten_1 = addNDistinctFrom H.empty 10 10
+
+h_one_thousand = addNDistinctFrom H.empty 1000 0
+
+h_ten_thousand = addNDistinctFrom H.empty 10000 0
+h_fifty_thousand = addNDistinctFrom H.empty 50000 0
+
+h_one_hundred_thousand = addNDistinctFrom H.empty 100000 0
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add n, distinct, consecutive elements, from m, to the Heap h.
+
+-}
+
+addNDistinctFrom :: H.Heap Int -> Int -> Int -> H.Heap Int
+addNDistinctFrom h 0 _ = h
+addNDistinctFrom h n m = addNDistinctFrom ( H.insert ( m + n - 1 ) h ) ( n - 1 ) m
+
+
+{-
+
+TODO: This Doesn't Work (Well)! Why??
+
+alt2_addNDistinctFrom h 0 _ = h
+alt2_addNDistinctFrom h n m = H.insert ( m + n - 1 ) ( addNDistinctFrom h ( n - 1 ) m )
+
+-}
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Add all elements contained in Heap i, to the Heap h.
+
+-}
+
+addAll :: H.Heap Int -> H.Heap Int -> H.Heap Int
+addAll = H.union
+--addAll h i = H.foldl ( flip H.insert ) h i
+
+
+{-
+
+    Add all elements contained in Heap i, to the Heap h.
+    Repeat n times.
+
+-}
+
+addAllNTimes :: H.Heap Int -> H.Heap Int -> Int -> H.Heap Int
+addAllNTimes h _ 0 = h
+addAllNTimes h i n = deepseq ( addAll h i ) ( addAllNTimes h i ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Clear the Heap h.
+
+-}
+
+clear :: H.Heap Int -> H.Heap Int
+clear h = removeAll h h
+
+{-
+
+alt_clear :: H.Heap Int -> H.Heap Int
+alt_clear h =
+    let
+        i = H.deleteMin h
+    in
+        if  H.null i then i else alt_clear i
+
+-}
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Check if a Heap h contains an element e.
+
+-}
+
+contains :: H.Heap Int -> Int -> Bool
+contains = flip H.member
+--contains h e = not . H.null . H.filter ( (==) e ) $ h
+
+
+{-
+
+    Check if a Heap h contains an element e.
+    Repeat n times.
+
+-}
+
+containsNTimes :: H.Heap Int -> Int -> Int -> Bool
+containsNTimes _ _ 0 = False
+containsNTimes h e n = ( (||) ( containsNTimes h e ( n - 1 ) ) ) $!! ( contains h e )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Checks if a Heap h contains all elements in a Heap i.
+
+-}
+
+containsAll :: H.Heap Int -> H.Heap Int -> Bool
+containsAll h i
+    | H.null h = H.null i
+    | H.null i = True
+    | otherwise =
+        case H.minView i of
+            Just ( m , roi ) -> if ( h `contains` m ) then ( containsAll h roi ) else False
+            Nothing -> True
+
+{-
+    --Less efficient
+alt_containsAll h i = H.null $ H.fold f i h
+    where f e h1 = H.delete e h1
+-}
+
+
+{-
+
+    Checks if a Heap h contains all elements in a Heap i.
+    Repeats n times.
+
+
+-}
+
+containsAllNTimes :: H.Heap Int -> H.Heap Int -> Int -> Bool
+containsAllNTimes _ _ 0 = False
+containsAllNTimes h i n = ( (||) ( containsAllNTimes h i ( n - 1 ) ) ) $!! ( containsAll h i )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Iterate through a Heap h.
+
+-}
+
+iterator :: H.Heap Int -> [ Int ]
+iterator = H.fold (:) []
+
+-- TODO: use unsafeMapMonotonic ? a p P JPF: Need to check the source of iterator in Java for one Collection!
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove an element (the minimum) from a Heap h.
+
+-}
+
+remove :: H.Heap Int -> H.Heap Int
+remove = H.deleteMin
+
+
+{-
+
+    Remove an element (the minimum) from a Heap h.
+    Repeat n times. 
+
+-}
+
+removeNTimes :: H.Heap Int -> Int -> H.Heap Int
+removeNTimes h 0 = h
+removeNTimes h n = deepseq ( remove h ) ( removeNTimes h ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Remove all elements, in a Heap i, from a Heap h.
+
+-}
+
+removeAll :: H.Heap Int -> H.Heap Int -> H.Heap Int
+removeAll h i =
+    case H.minView i of
+        Just ( m , roi ) -> removeAll ( H.delete m h ) roi
+        Nothing -> force h
+
+-- Is this correct? a p P JPF: Yes
+
+--alt_removeAll h i = H.filter ( not . contains i ) h
+
+
+{-
+
+    Remove all elements, in a Heap i, from a Heap h.
+    Repeat n times.
+
+-}
+
+removeAllNTimes :: H.Heap Int -> H.Heap Int -> Int -> H.Heap Int
+removeAllNTimes h _ 0 = h
+removeAllNTimes h i n = deepseq ( removeAll h i ) ( removeAllNTimes h i ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    Retain all elements contained in a Heap i, in a Heap h.
+
+-}
+
+retainAll :: H.Heap Int -> H.Heap Int -> H.Heap Int
+retainAll h i = H.filter ( i `contains` ) h
+
+{-
+alt_retainAll h i =
+    case H.minView h of
+        Just ( m , roh ) -> if ( contains i m ) then H.insert m ( retainAll roh i ) else retainAll roh i
+        Nothing -> h
+-}
+
+
+{-
+
+    Retain all elements contained in a Heap i, in a Heap h.
+    Repeat n times.
+
+-}
+
+retainAllNTimes :: H.Heap Int -> H.Heap Int -> Int -> H.Heap Int
+retainAllNTimes h _ 0 = h
+retainAllNTimes h i n = deepseq ( retainAll h i ) ( retainAllNTimes h i ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+{-
+
+    toList
+
+-}
+
+toList :: H.Heap Int -> [ Int ]
+toList = H.fold (:) []
+
+--alt_toList = H.foldr (:) []
+
+
+{-
+
+    toList n times.
+
+-}
+
+toListNTimes :: H.Heap Int -> Int -> [ Int ]
+toListNTimes _ 0 = []
+toListNTimes h n = deepseq ( toList h ) ( toListNTimes h ( n - 1 ) )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+

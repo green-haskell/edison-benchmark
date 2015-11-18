@@ -1,0 +1,91 @@
+module Environments where
+
+--import qualified Data.Edison.Coll.LazyPairingHeap as H
+
+--import qualified Data.Edison.Coll.LeftistHeap as H
+
+--import qualified Data.Edison.Coll.SkewHeap as H
+
+--import qualified Data.Edison.Coll.SplayHeap as H
+
+import qualified <HeapImplementation> as H
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+import Defs
+
+import Ops
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+-- Benchmarks environment setup functions
+
+defaultEnv :: IO ( H.Heap Int )
+defaultEnv = return ( addNDistinctFrom H.empty baseNElems 0 )
+
+
+addEnvSetup :: IO ( H.Heap Int )
+addEnvSetup = defaultEnv
+
+
+addAllEnvSetup :: IO ( H.Heap Int , H.Heap Int )
+addAllEnvSetup = do
+    let
+        i = addNDistinctFrom H.empty addAllFromNElems 0
+    h <- defaultEnv
+    return ( h , i )
+
+
+-- clear
+clearEnvSetup :: IO ( H.Heap Int )
+clearEnvSetup = do
+    return ( addNDistinctFrom H.empty clearNElems 0 )
+
+
+containsEnvSetup :: IO ( H.Heap Int )
+containsEnvSetup = do
+    defaultEnv
+
+
+containsAllEnvSetup :: IO ( H.Heap Int , H.Heap Int )
+containsAllEnvSetup = do
+    let
+        h = addNDistinctFrom H.empty containsAllSearchInNElems 0
+        i = addNDistinctFrom H.empty containsAllSearchForNElems 0
+    return ( h , i )
+
+
+-- iterator
+iteratorEnvSetup :: IO ( H.Heap Int )
+iteratorEnvSetup = defaultEnv
+
+
+removeEnvSetup :: IO ( H.Heap Int )
+removeEnvSetup = return ( addNDistinctFrom H.empty removeFromNElems 0 )
+
+
+removeAllEnvSetup :: IO ( H.Heap Int , H.Heap Int )
+removeAllEnvSetup = do
+    let
+        h = addNDistinctFrom H.empty removeAllFromNElems 0
+        i = addNDistinctFrom H.empty removeAllNElems 0
+    return ( h , i )
+
+
+retainAllEnvSetup :: IO ( H.Heap Int , H.Heap Int )
+retainAllEnvSetup = do
+    let
+        h = addNDistinctFrom H.empty retainAllFromNElems 0
+        i = addNDistinctFrom H.empty retainAllToNElems 0
+    return ( h , i )
+
+
+toListEnvSetup :: IO ( H.Heap Int )
+toListEnvSetup = return ( addNDistinctFrom H.empty toListFromNElems 0 )
+
+
+-- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+
