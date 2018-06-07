@@ -85,7 +85,8 @@ executable benchmarkForOneSeqImpl
   
     -- Other library packages from which modules are imported.
     build-depends:      base       >=4.8 && <4.9
-                      , criterion  >=1.1 && <1.2
+                      , criterion ==1.1.0.1
+                      --, criterion  >=1.1 && <1.2
                       , deepseq    >=1.4 && <1.5
                       , EdisonAPI  >=1.3 && <1.4
                       , EdisonCore >=1.3 && <1.4
@@ -120,7 +121,8 @@ executable compileForAllSequenceImplementations
   
     -- Other library packages from which modules are imported.
     build-depends:      base      >=4.8 && <4.9
-                      , criterion >=1.1 && <1.2
+                      , criterion ==1.1.0.1
+                      --, criterion >=1.1 && <1.2
                       , directory >=1.2 && <1.3
                       , process   >=1.2 && <1.3
                       , text      >=1.2 && <1.3
@@ -155,7 +157,8 @@ executable runForAllSequenceImplementations
   
     -- Other library packages from which modules are imported.
     build-depends:      base      >=4.8 && <4.9
-                      , criterion >=1.1 && <1.2
+                      , criterion ==1.1.0.1
+                      --, criterion >=1.1 && <1.2
                       , directory >=1.2 && <1.3
                       , process   >=1.2 && <1.3
                       , text      >=1.2 && <1.3
@@ -190,7 +193,8 @@ executable runForAllBenchmarkTypes
   
     -- Other library packages from which modules are imported.
     build-depends:      base      >=4.8 && <4.9
-                      , criterion >=1.1 && <1.2
+                      , criterion ==1.1.0.1
+                      --, criterion >=1.1 && <1.2
                       , directory >=1.2 && <1.3
                       , process   >=1.2 && <1.3
                       , text      >=1.2 && <1.3
