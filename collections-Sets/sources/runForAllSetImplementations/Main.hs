@@ -317,12 +317,12 @@ getBenchmarkOutputForSetImplementation b s = do
         benchmarkCommand = benchmarksExecutablesDestinationPath ++ benchmarkExecutableBaseName ++ DTL.unpack s
         benchmarkId = "" ++ DTL.unpack b ++ "" -- Note: nothing around!
 
-    hPutStrLn stderr $ SP.showCommandForUser benchmarkCommand [ "--regress", "energy:iters" , benchmarkId ]
+    hPutStrLn stderr $ SP.showCommandForUser benchmarkCommand [ "--regress", "packageEnergy:iters" , benchmarkId ]
 
     it <- getCurrentTime
     hPutStrLn stderr . (++) "Started: " . show $ it
 
-    ( _ , Just hout , _ , _ ) <- SP.createProcess ( ( SP.proc benchmarkCommand [ "--regress",  "energy:iters" , benchmarkId ] ){ SP.std_out = SP.CreatePipe } )
+    ( _ , Just hout , _ , _ ) <- SP.createProcess ( ( SP.proc benchmarkCommand [ "--regress",  "packageEnergy:iters" , benchmarkId ] ){ SP.std_out = SP.CreatePipe } )
     benchmarkOutput <- DTI.hGetContents hout
 
     hPutStrLn stderr . DTL.unpack $ DTL.fromChunks [ benchmarkOutput ]
