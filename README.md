@@ -1,12 +1,6 @@
 
 git clone https://github.com/green-haskell/criterion.git
 
-cd criterion
-
-git checkout master
-
-cd ..
-
 git clone https://github.com/gilbertomelfe/edison.git
 
 git clone https://github.com/green-haskell/edison-benchmark.git
