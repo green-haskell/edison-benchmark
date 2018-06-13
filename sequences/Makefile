@@ -3,13 +3,13 @@
 sequenceImplementations = BankersQueue \
 BinaryRandList \
 BraunSeq \
+FingerSeq \
 JoinList \
 ListSeq \
 RandList \
 SimpleQueue
 
 #MyersStack
-#FingerSeq
 
 
 main:
